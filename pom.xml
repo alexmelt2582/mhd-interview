@@ -29,6 +29,12 @@
         <!-- Spring Boot 相关版本 -->
         <spring-boot.version>3.5.9</spring-boot.version>
 
+        <!-- 日志相关版本 -->
+        <!--<slf4j.version>1.7.36</slf4j.version>-->
+        <!--<logback.version>1.2.12</logback.version>-->
+        <!--<log4j-over-slf4j.version>2.0.17</log4j-over-slf4j.version>-->
+        <!--<log4j-to-slf4j.version>2.20.0</log4j-to-slf4j.version>-->
+
         <!-- 数据库相关版本 -->
         <dynamic-ds.version>4.3.1</dynamic-ds.version>
         <mysql.version>8.0.33</mysql.version>
@@ -89,6 +95,46 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
+            <!-- 内部模块依赖 -->
+
+            <!-- 日志统一管理 -->
+            <!--&lt;!&ndash; SLF4J API &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>org.slf4j</groupId>-->
+            <!--    <artifactId>slf4j-api</artifactId>-->
+            <!--    <version>${slf4j.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; Logback 实现 &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>ch.qos.logback</groupId>-->
+            <!--    <artifactId>logback-classic</artifactId>-->
+            <!--    <version>${logback.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; 将 Log4j 1.x 桥接到 SLF4J &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>org.slf4j</groupId>-->
+            <!--    <artifactId>log4j-over-slf4j</artifactId>-->
+            <!--    <version>${log4j-over-slf4j.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; 将 Log4j 2.x 桥接到 SLF4J &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>org.apache.logging.log4j</groupId>-->
+            <!--    <artifactId>log4j-to-slf4j</artifactId>-->
+            <!--    <version>${log4j-to-slf4j.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; 将 JCL(Jakarta Commons Logging) 桥接到 SLF4J &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>org.slf4j</groupId>-->
+            <!--    <artifactId>jcl-over-slf4j</artifactId>-->
+            <!--    <version>${slf4j.version}</version>-->
+            <!--</dependency>-->
+            <!--&lt;!&ndash; 将 JUL 桥接到 SLF4J，暂未验证 &ndash;&gt;-->
+            <!--<dependency>-->
+            <!--    <groupId>org.slf4j</groupId>-->
+            <!--    <artifactId>jul-to-slf4j</artifactId>-->
+            <!--    <version>${slf4j.version}</version>-->
+            <!--</dependency>-->
 
             <!-- 数据库相关 -->
             <!-- dynamic-datasource 多数据源-->

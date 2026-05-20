@@ -1,0 +1,23 @@
+{
+  "skill_name": "database-reader-guardrails",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "查询 MySQL 中 apipark 库的 service 表最近 5 条记录，返回 id、name、prefix，并且先确认库、表、字段都存在。",
+      "expected_output": "先说明当前连接和 apipark、service、id、name、prefix、create_at 的校验结果，再给出只读 SQL，并返回结果或结果摘要。",
+      "files": []
+    },
+    {
+      "id": 2,
+      "prompt": "在 PostgreSQL 或 openGauss 中统计 shop 库 public.orders 表昨天的订单数，先确认数据库、schema、表、created_at 字段存在。",
+      "expected_output": "先给出 database/schema/table/column 的存在性检查，再执行只读统计 SQL；如果对象不存在，要明确指出缺失项并停止。",
+      "files": []
+    },
+    {
+      "id": 3,
+      "prompt": "读取 Redis 里 user:1001 的 nickname 字段，先确认逻辑库、key、type、field 都存在。",
+      "expected_output": "先确认 Redis DB、key existence、key type、field existence，再执行匹配类型的读取命令并返回字段值或阻塞原因。",
+      "files": []
+    }
+  ]
+}
