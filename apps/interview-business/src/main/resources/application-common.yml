@@ -1,0 +1,58 @@
+# ============================================================
+# 基础设施共享配置
+# 说明：
+# 1. 所有应用通过 spring.config.import 引入。
+# 2. 这里只放“跨应用共享”的基础设施配置，不放端口、Swagger、上传目录等应用专属配置。
+# 3. 应用如果需要覆盖某个值，可在自己的 application.yml / application-dev.yml 中重写。
+# ============================================================
+
+spring:
+  jackson:
+    # 全局时间格式，供接口响应和日志结构化输出复用。
+    date-format: yyyy-MM-dd HH:mm:ss
+    # 统一时区，避免不同节点序列化时间不一致。
+    time-zone: GMT+8
+    serialization:
+      # 关闭格式化输出，降低响应体体积。
+      indent_output: false
+      # 允许空 Bean 被序列化，减少旧模型迁移阶段的兼容问题。
+      fail_on_empty_beans: false
+    deserialization:
+      # 忽略未知字段，便于新旧请求模型并行演进。
+      fail_on_unknown_properties: false
+
+mybatis-plus:
+  mapperPackage: com.mhd.**.mapper
+  # 统一 Mapper XML 扫描位置，后续所有 XML 都应迁入 push-infra。
+  mapper-locations: classpath*:/mapper/**/*.xml
+  # 类型别名扫描覆盖 infra entity 多个 package 用逗号或者分号分隔
+  typeAliasesPackage: com.mhd.**.entity
+  configuration:
+    # 开启下划线到驼峰转换，兼容当前数据库字段命名风格。
+    map-underscore-to-camel-case: true
+    # 更详细的日志输出 会有性能损耗 org.apache.ibatis.logging.stdout.StdOutImpl
+    # 关闭日志记录 (可单纯使用 p6spy 分析) org.apache.ibatis.logging.nologging.NoLoggingImpl
+    # 默认日志输出 org.apache.ibatis.logging.slf4j.Slf4jImpl
+    # 默认关闭 SQL 控制台日志，避免生产环境日志噪音。
+    logImpl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+  #    cache-enabled: false # 关闭缓存
+  #    call-setters-on-nulls: true # 若查询数据时字段值是 null 时，设置为 true 则显示当前字段名
+  #    jdbc-type-for-null: 'null' # 插入数据时，如果有字段为空设置 null
+  global-config:
+    # 关闭 MyBatis Plus 启动 Logo，减少控制台输出。
+    banner: false
+    db-config:
+      # AUTO 自增 NONE 空 INPUT 用户输入 ASSIGN_ID 雪花 ASSIGN_UUID 唯一 UUID
+      id-type: auto
+#      logic-delete-field: deleted # 全局逻辑删除的实体字段名
+#      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+#      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0)
+
+#jasypt:
+#  encryptor:
+#    # 保持与旧工程一致的加密算法，避免历史密文无法解密。
+#    algorithm: PBEWithMD5AndDES
+#    # 旧工程未使用独立 IV，这里保持兼容。
+#    iv-generator-classname: org.jasypt.iv.NoIvGenerator
+#    # 该密码仅作为本地开发默认值，生产环境必须通过环境变量或配置中心覆盖。
+#    password: ${MHD_JASYPT_PASSWORD:QSXRYJNF4510SDCC}
