@@ -40,6 +40,10 @@
         <mysql.version>8.0.33</mysql.version>
         <druid.version>1.2.27</druid.version>
         <mybatis-plus.version>3.5.14</mybatis-plus.version>
+        <postgresql.version>42.7.10</postgresql.version>
+
+        <!-- AI相关版本 -->
+        <spring-ai.version>1.1.4</spring-ai.version>
 
         <!-- 工具类库版本 -->
         <lombok.version>1.18.30</lombok.version>
@@ -84,6 +88,11 @@
             <dependency>
                 <groupId>com.mhd</groupId>
                 <artifactId>interview-common-web</artifactId>
+                <version>${revision}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.mhd</groupId>
+                <artifactId>interview-ai</artifactId>
                 <version>${revision}</version>
             </dependency>
 
@@ -158,11 +167,28 @@
                 <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
                 <version>${mybatis-plus.version}</version>
             </dependency>
-
             <dependency>
                 <groupId>com.baomidou</groupId>
                 <artifactId>mybatis-plus-jsqlparser</artifactId>
                 <version>${mybatis-plus.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.postgresql</groupId>
+                <artifactId>postgresql</artifactId>
+                <version>${postgresql.version}</version>
+            </dependency>
+
+            <!-- AI相关 -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-model-openai</artifactId>
+                <version>${spring-ai.version}</version>
+            </dependency>
+            <!-- Source: https://mvnrepository.com/artifact/org.springframework.ai/spring-ai-starter-vector-store-pgvector -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-starter-vector-store-pgvector</artifactId>
+                <version>${spring-ai.version}</version>
             </dependency>
 
             <!-- 工具类相关 -->

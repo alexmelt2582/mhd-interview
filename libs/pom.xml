@@ -16,6 +16,7 @@
         <module>interview-common-doc</module>
         <module>interview-common-mybatis</module>
         <module>interview-common-web</module>
+        <module>interview-ai</module>
     </modules>
 
 </project>
