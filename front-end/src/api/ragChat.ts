@@ -5,14 +5,14 @@ const API_BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:8080';
 // ========== 类型定义 ==========
 
 export interface RagChatSession {
-  id: string;
+  id: number;
   title: string;
-  knowledgeBaseIds: string[];
+  knowledgeBaseIds: number[];
   createdAt: string;
 }
 
 export interface RagChatSessionListItem {
-  id: string;
+  id: number;
   title: string;
   messageCount: number;
   knowledgeBaseNames: string[];
@@ -21,26 +21,26 @@ export interface RagChatSessionListItem {
 }
 
 export interface RagChatMessage {
-  id: string;
+  id: number;
   type: 'user' | 'assistant';
   content: string;
   createdAt: string;
 }
 
 export interface KnowledgeBaseItem {
-  id: string;
+  id: number;
   name: string;
   originalFilename: string;
   fileSize: number;
   contentType: string;
-  uploadTime: string;
+  uploadedAt: string;
   lastAccessedAt: string;
   accessCount: number;
   questionCount: number;
 }
 
 export interface RagChatSessionDetail {
-  id: string;
+  id: number;
   title: string;
   knowledgeBases: KnowledgeBaseItem[];
   messages: RagChatMessage[];
@@ -54,7 +54,7 @@ export const ragChatApi = {
   /**
    * 创建新会话
    */
-  async createSession(knowledgeBaseIds: string[], title?: string): Promise<RagChatSession> {
+  async createSession(knowledgeBaseIds: number[], title?: string): Promise<RagChatSession> {
     return request.post<RagChatSession>('/api/rag-chat/sessions', {
       knowledgeBaseIds,
       title,
@@ -71,21 +71,21 @@ export const ragChatApi = {
   /**
    * 获取会话详情
    */
-  async getSessionDetail(sessionId: string): Promise<RagChatSessionDetail> {
+  async getSessionDetail(sessionId: number): Promise<RagChatSessionDetail> {
     return request.get<RagChatSessionDetail>(`/api/rag-chat/sessions/${sessionId}`);
   },
 
   /**
    * 更新会话标题
    */
-  async updateSessionTitle(sessionId: string, title: string): Promise<void> {
+  async updateSessionTitle(sessionId: number, title: string): Promise<void> {
     return request.put(`/api/rag-chat/sessions/${sessionId}/title`, { title });
   },
 
   /**
    * 更新会话知识库
    */
-  async updateKnowledgeBases(sessionId: string, knowledgeBaseIds: string[]): Promise<void> {
+  async updateKnowledgeBases(sessionId: number, knowledgeBaseIds: number[]): Promise<void> {
     return request.put(`/api/rag-chat/sessions/${sessionId}/knowledge-bases`, {
       knowledgeBaseIds,
     });
@@ -94,14 +94,14 @@ export const ragChatApi = {
   /**
    * 切换会话置顶状态
    */
-  async togglePin(sessionId: string): Promise<void> {
+  async togglePin(sessionId: number): Promise<void> {
     return request.put(`/api/rag-chat/sessions/${sessionId}/pin`);
   },
 
   /**
    * 删除会话
    */
-  async deleteSession(sessionId: string): Promise<void> {
+  async deleteSession(sessionId: number): Promise<void> {
     return request.delete(`/api/rag-chat/sessions/${sessionId}`);
   },
 
@@ -109,7 +109,7 @@ export const ragChatApi = {
    * 发送消息（流式SSE）
    */
   async sendMessageStream(
-    sessionId: string,
+    sessionId: number,
     question: string,
     onMessage: (chunk: string) => void,
     onComplete: () => void,

@@ -7,13 +7,13 @@ const API_BASE_URL = import.meta.env.PROD ? '' : 'http://localhost:8080';
 export type VectorStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 export interface KnowledgeBaseItem {
-  id: string;
+  id: number;
   name: string;
   category: string | null;
   originalFilename: string;
   fileSize: number;
   contentType: string;
-  uploadTime: string;
+  uploadedAt: string;
   lastAccessedAt: string;
   accessCount: number;
   questionCount: number;
@@ -35,7 +35,7 @@ export type SortOption = 'time' | 'size' | 'access' | 'question';
 
 export interface UploadKnowledgeBaseResponse {
   knowledgeBase: {
-    id: string;
+    id: number;
     name: string;
     category: string;
     fileSize: number;
@@ -49,13 +49,13 @@ export interface UploadKnowledgeBaseResponse {
 }
 
 export interface QueryRequest {
-  knowledgeBaseIds: string[];  // 支持多个知识库
+  knowledgeBaseIds: number[];  // 支持多个知识库
   question: string;
 }
 
 export interface QueryResponse {
   answer: string;
-  knowledgeBaseid: string;
+  knowledgeBaseId: number;
   knowledgeBaseName: string;
 }
 
@@ -78,7 +78,7 @@ export const knowledgeBaseApi = {
     /**
      * 下载知识库文件
      */
-    async downloadKnowledgeBase(id: string): Promise<Blob> {
+    async downloadKnowledgeBase(id: number): Promise<Blob> {
         const response = await axios.get(`${API_BASE_URL}/api/knowledgebase/${id}/download`, {
             responseType: 'blob',
         });
@@ -103,14 +103,14 @@ export const knowledgeBaseApi = {
   /**
    * 获取知识库详情
    */
-  async getKnowledgeBase(id: string): Promise<KnowledgeBaseItem> {
+  async getKnowledgeBase(id: number): Promise<KnowledgeBaseItem> {
     return request.get<KnowledgeBaseItem>(`/api/knowledgebase/${id}`);
   },
 
   /**
    * 删除知识库
    */
-  async deleteKnowledgeBase(id: string): Promise<void> {
+  async deleteKnowledgeBase(id: number): Promise<void> {
     return request.delete(`/api/knowledgebase/${id}`);
   },
 
@@ -140,7 +140,7 @@ export const knowledgeBaseApi = {
   /**
    * 更新知识库分类
    */
-  async updateCategory(id: string, category: string | null): Promise<void> {
+  async updateCategory(id: number, category: string | null): Promise<void> {
     return request.put(`/api/knowledgebase/${id}/category`, { category });
   },
 
@@ -167,7 +167,7 @@ export const knowledgeBaseApi = {
   /**
    * 重新向量化知识库（手动重试）
    */
-  async revectorize(id: string): Promise<void> {
+  async revectorize(id: number): Promise<void> {
     return request.post(`/api/knowledgebase/${id}/revectorize`);
   },
 

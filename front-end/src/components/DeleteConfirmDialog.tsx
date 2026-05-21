@@ -1,7 +1,7 @@
 import ConfirmDialog from './ConfirmDialog';
 
 export interface DeleteItem {
-  id: string;
+  id: number;
   name?: string;
   title?: string;
   filename?: string;

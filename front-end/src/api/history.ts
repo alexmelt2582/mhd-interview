@@ -4,13 +4,13 @@ export type AnalyzeStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 export type EvaluateStatus = 'PENDING' | 'PROCESSING' | 'COMPLETED' | 'FAILED';
 
 export interface ResumeListItem {
-  id: string;
+  id: number;
   filename: string;
   fileSize: number;
-  uploadTime: string;
+  uploadedAt: string;
   accessCount: number;
   latestScore?: number;
-  lastAnalysisTime?: string;
+  lastAnalyzedAt?: string;
   interviewCount: number;
   analyzeStatus?: AnalyzeStatus;
   analyzeError?: string;
@@ -24,21 +24,21 @@ export interface ResumeStats {
 }
 
 export interface AnalysisItem {
-  id: string;
+  id: number;
   overallScore: number;
   contentScore: number;
-  structScore: number;
-  skillScore: number;
+  structureScore: number;
+  skillMatchScore: number;
   expressionScore: number;
   projectScore: number;
   summary: string;
-  analysisTime: string;
+  analyzedAt: string;
   strengths: string[];
   suggestions: unknown[];
 }
 
 export interface InterviewItem {
-  id: string;
+  id: number;
   sessionId: string;
   totalQuestions: number;
   status: string;
@@ -67,17 +67,17 @@ export interface AnswerItem {
 }
 
 export interface ResumeDetail {
-  id: string;
+  id: number;
   filename: string;
   fileSize: number;
   contentType: string;
   storageUrl: string;
-  uploadTime: string;
+  uploadedAt: string;
   accessCount: number;
   resumeText: string;
   analyzeStatus?: AnalyzeStatus;
   analyzeError?: string;
-  analysisList: AnalysisItem[];
+  analyses: AnalysisItem[];
   interviews: InterviewItem[];
 }
 
@@ -98,7 +98,7 @@ export const historyApi = {
   /**
    * 获取简历详情
    */
-  async getResumeDetail(id: string): Promise<ResumeDetail> {
+  async getResumeDetail(id: number): Promise<ResumeDetail> {
     return request.get<ResumeDetail>(`/api/resumes/${id}/detail`);
   },
 
@@ -112,7 +112,7 @@ export const historyApi = {
   /**
    * 导出简历分析报告PDF
    */
-  async exportAnalysisPdf(resumeId: string): Promise<Blob> {
+  async exportAnalysisPdf(resumeId: number): Promise<Blob> {
     const response = await request.getInstance().get(`/api/resumes/${resumeId}/export`, {
       responseType: 'blob',
       skipResultTransform: true,
@@ -134,7 +134,7 @@ export const historyApi = {
   /**
    * 删除简历
    */
-  async deleteResume(id: string): Promise<void> {
+  async deleteResume(id: number): Promise<void> {
     return request.delete(`/api/resumes/${id}`);
   },
 
@@ -155,7 +155,7 @@ export const historyApi = {
   /**
    * 重新分析简历
    */
-  async reanalyze(id: string): Promise<void> {
+  async reanalyze(id: number): Promise<void> {
     return request.post(`/api/resumes/${id}/reanalyze`);
   },
 };

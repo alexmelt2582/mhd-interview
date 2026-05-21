@@ -33,9 +33,9 @@ export default function AnalysisPanel({
     if (!analysis) return [];
 
     const projectScore = analysis.projectScore || 0;
-    const skillScore = analysis.skillScore || 0;
+    const skillMatchScore = analysis.skillMatchScore || 0;
     const contentScore = analysis.contentScore || 0;
-    const structScore = analysis.structScore || 0;
+    const structureScore = analysis.structureScore || 0;
     const expressionScore = analysis.expressionScore || 0;
 
     const projectFullMark = 40;
@@ -52,7 +52,7 @@ export default function AnalysisPanel({
       },
       {
         subject: '技能匹配',
-        score: skillScore,
+        score: skillMatchScore,
         fullMark: skillMatchFullMark
       },
       {
@@ -62,7 +62,7 @@ export default function AnalysisPanel({
       },
       {
         subject: '结构清晰度',
-        score: structScore,
+        score: structureScore,
         fullMark: structureFullMark
       },
       {
@@ -200,9 +200,9 @@ export default function AnalysisPanel({
   }
 
   const projectScore = analysis.projectScore || 0;
-  const skillScore = analysis.skillScore || 0;
+  const skillMatchScore = analysis.skillMatchScore || 0;
   const contentScore = analysis.contentScore || 0;
-  const structScore = analysis.structScore || 0;
+  const structureScore = analysis.structureScore || 0;
   const expressionScore = analysis.expressionScore || 0;
 
   return (
@@ -249,7 +249,7 @@ export default function AnalysisPanel({
                 <span
                     className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 block mb-2">分析时间</span>
                 <span className="text-sm text-slate-700 dark:text-slate-300">
-                  {formatDateTime(analysis.analysisTime)}
+                  {formatDateTime(analysis.analyzedAt)}
                 </span>
               </div>
             </div>
@@ -298,7 +298,7 @@ export default function AnalysisPanel({
             />
             <ScoreProgressBar
               label="技能匹配"
-              score={skillScore}
+              score={skillMatchScore}
               maxScore={20}
               color="bg-blue-500"
               delay={0.4}
@@ -312,7 +312,7 @@ export default function AnalysisPanel({
             />
             <ScoreProgressBar
               label="结构清晰度"
-              score={structScore}
+              score={structureScore}
               maxScore={15}
               color="bg-cyan-500"
               delay={0.6}

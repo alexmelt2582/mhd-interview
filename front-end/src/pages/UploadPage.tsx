@@ -4,7 +4,7 @@ import { getErrorMessage } from '../api/request';
 import FileUploadCard from '../components/FileUploadCard';
 
 interface UploadPageProps {
-  onUploadComplete: (resumeId: string) => void;
+  onUploadComplete: (resumeId: number) => void;
 }
 
 export default function UploadPage({ onUploadComplete }: UploadPageProps) {

@@ -195,7 +195,7 @@ export default function KnowledgeBaseManagePage({ onUpload, onChat }: KnowledgeB
   }, [knowledgeBases, loading, loadDataSilent]);
 
   // 重新向量化
-  const handleRevectorize = async (id: string) => {
+  const handleRevectorize = async (id: number) => {
     try {
       setRevectorizing(id);
       await knowledgeBaseApi.revectorize(id);
@@ -255,7 +255,7 @@ export default function KnowledgeBaseManagePage({ onUpload, onChat }: KnowledgeB
   };
 
   // 保存分类
-  const handleSaveCategory = async (id: string) => {
+  const handleSaveCategory = async (id: number) => {
     try {
       setSavingCategory(true);
       const categoryToSave = editingCategoryValue.trim() || null;
@@ -271,7 +271,7 @@ export default function KnowledgeBaseManagePage({ onUpload, onChat }: KnowledgeB
   };
 
   // 处理分类输入框按键
-  const handleCategoryKeyDown = (e: React.KeyboardEvent, id: string) => {
+  const handleCategoryKeyDown = (e: React.KeyboardEvent, id: number) => {
     if (e.key === 'Enter') {
       e.preventDefault();
       handleSaveCategory(id);
@@ -549,7 +549,7 @@ export default function KnowledgeBaseManagePage({ onUpload, onChat }: KnowledgeB
                     {kb.questionCount}
                   </td>
                     <td className="px-6 py-4 text-sm text-slate-500 dark:text-slate-400">
-                    {formatDate(kb.uploadTime)}
+                    {formatDate(kb.uploadedAt)}
                   </td>
                   <td className="px-6 py-4 text-right">
                     <div className="flex items-center justify-end gap-1">

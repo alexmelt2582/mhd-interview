@@ -4,7 +4,7 @@ import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
  * 后端统一响应结构
  */
 interface Result<T = unknown> {
-  code: string;
+  code: number;
   message: string;
   data: T;
 }
@@ -29,7 +29,7 @@ instance.interceptors.response.use(
     
     // 检查是否是 Result 格式
     if (result && typeof result === 'object' && 'code' in result) {
-      if (result.code === "200") {
+      if (result.code === 200) {
         // 成功：返回 data
         response.data = result.data;
         return response;
@@ -87,6 +87,10 @@ export const request = {
     return instance.put(url, data, config).then(res => res.data);
   },
 
+  patch<T>(url: string, data?: unknown, config?: AxiosRequestConfig): Promise<T> {
+    return instance.patch(url, data, config).then(res => res.data);
+  },
+
   delete<T>(url: string, config?: AxiosRequestConfig): Promise<T> {
     return instance.delete(url, config).then(res => res.data);
   },
@@ -96,7 +100,7 @@ export const request = {
    */
   upload<T>(url: string, formData: FormData, config?: AxiosRequestConfig): Promise<T> {
     return instance.post(url, formData, {
-      timeout: 120000,
+      timeout: 300000, // 5分钟，与Nginx proxy_read_timeout对齐
       headers: { 'Content-Type': 'multipart/form-data' },
       ...config,
     }).then(res => res.data);

@@ -16,7 +16,7 @@ interface KnowledgeBaseQueryPageProps {
 }
 
 interface Message {
-  id?: string;
+  id?: number;
   type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
@@ -44,11 +44,11 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
 
   // 会话状态
   const [sessions, setSessions] = useState<RagChatSessionListItem[]>([]);
-  const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
+  const [currentSessionId, setCurrentSessionId] = useState<number | null>(null);
   const [currentSessionTitle, setCurrentSessionTitle] = useState<string>('');
   const [loadingSessions, setLoadingSessions] = useState(false);
-  const [sessionDeleteConfirm, setSessionDeleteConfirm] = useState<{ id: string; title: string } | null>(null);
-  const [editingSessionTitle, setEditingSessionTitle] = useState<{ id: string; title: string } | null>(null);
+  const [sessionDeleteConfirm, setSessionDeleteConfirm] = useState<{ id: number; title: string } | null>(null);
+  const [editingSessionTitle, setEditingSessionTitle] = useState<{ id: number; title: string } | null>(null);
   const [newSessionTitle, setNewSessionTitle] = useState('');
 
   // 消息状态
@@ -155,7 +155,7 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
     }
   };
 
-  const handleToggleKb = (kbId: string) => {
+  const handleToggleKb = (kbId: number) => {
     setSelectedKbIds(prev => {
       const newSet = new Set(prev);
       if (newSet.has(kbId)) {
@@ -178,7 +178,7 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
     setMessages([]);
   };
 
-  const handleLoadSession = async (sessionId: string) => {
+  const handleLoadSession = async (sessionId: number) => {
     try {
       const detail = await ragChatApi.getSessionDetail(sessionId);
       setCurrentSessionId(detail.id);
@@ -209,7 +209,7 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
     }
   };
 
-  const handleEditSessionTitle = (sessionId: string, currentTitle: string) => {
+  const handleEditSessionTitle = (sessionId: number, currentTitle: string) => {
     setEditingSessionTitle({ id: sessionId, title: currentTitle });
     setNewSessionTitle(currentTitle);
   };
@@ -229,7 +229,7 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
     }
   };
 
-  const handleTogglePin = async (sessionId: string, e: React.MouseEvent) => {
+  const handleTogglePin = async (sessionId: number, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       await ragChatApi.togglePin(sessionId);
@@ -776,7 +776,7 @@ export default function KnowledgeBaseQueryPage({ onBack, onUpload }: KnowledgeBa
       {/* 删除会话确认弹窗 */}
       <DeleteConfirmDialog
         open={!!sessionDeleteConfirm}
-        item={sessionDeleteConfirm ? { id: "0", title: sessionDeleteConfirm.title } : null}
+        item={sessionDeleteConfirm ? { id: 0, title: sessionDeleteConfirm.title } : null}
         itemType="对话"
         onConfirm={handleDeleteSession}
         onCancel={() => setSessionDeleteConfirm(null)}

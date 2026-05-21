@@ -22,7 +22,7 @@ import {
 } from 'lucide-react';
 
 interface HistoryListProps {
-  onSelectResume: (id: string) => void;
+  onSelectResume: (id: number) => void;
 }
 
 // 格式化文件大小
@@ -118,9 +118,9 @@ export default function HistoryList({ onSelectResume }: HistoryListProps) {
   const [stats, setStats] = useState<ResumeStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteItem, setDeleteItem] = useState<ResumeListItem | null>(null);
-  const [reanalyzingId, setReanalyzingId] = useState<string | null>(null);
+  const [reanalyzingId, setReanalyzingId] = useState<number | null>(null);
 
   // 静默加载数据（用于轮询）
   const loadDataSilent = useCallback(async () => {
@@ -189,7 +189,7 @@ export default function HistoryList({ onSelectResume }: HistoryListProps) {
   };
 
   // 重新分析
-  const handleReanalyze = async (id: string, e: React.MouseEvent) => {
+  const handleReanalyze = async (id: number, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
       setReanalyzingId(id);
@@ -392,7 +392,7 @@ export default function HistoryList({ onSelectResume }: HistoryListProps) {
                       )}
                     </td>
                     <td className="px-6 py-4 text-sm text-slate-500">
-                      {formatDate(resume.uploadTime)}
+                      {formatDate(resume.uploadedAt)}
                     </td>
                     <td className="px-6 py-4 text-right">
                       <div className="flex items-center justify-end gap-1">
