@@ -1,31 +1,68 @@
 # ============================================================
 # 开发环境配置
 # 说明：
-# 1. 数据库等公共连接信息。
+# 1. 已从 MySQL 迁移至 PostgreSQL（配合 interview-guide 业务集成）
+# 2. 敏感信息（密码、密钥）在生产环境必须通过环境变量注入
 # ============================================================
 
 spring:
+  threads:
+    virtual:
+      enabled: true  # 启用 Java 21 虚拟线程
+
   datasource:
-    name: test
-    # 本地开发数据库连接，迁移后所有需要直连数据库的应用都从这里继承。
-    url: jdbc:mysql://127.0.0.1:3306/mhd_interview?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
-    username: root
-    # 当前保留旧工程中的本地密码，仅用于开发环境；生产环境必须改为外部注入。
-    password: Z4,d.3[j
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    type: com.alibaba.druid.pool.DruidDataSource
-    druid:
-      # 初始连接数建议与最小空闲连接数保持一致，减少冷启动抖动。
-      initial-size: 10
-      min-idle: 10
-      # 最大连接数按当前单体迁移前配置保留，后续可按应用职责再下调。
-      max-active: 200
-      max-wait: 60000
-      time-between-eviction-runs-millis: 60000
-      min-evictable-idle-time-millis: 300000
-      test-while-idle: true
-      test-on-borrow: true
-      test-on-return: false
-      validation-query: SELECT 1
-      poolPreparedStatements: true
-      maxOpenPreparedStatements: 20
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://127.0.0.1:5432/mhd_interview
+    username: ${DB_USERNAME:interview}
+    password: ${DB_PASSWORD:interview123}
+    hikari:
+      maximum-pool-size: 20
+      minimum-idle: 5
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  ai:
+    openai:
+      base-url: ${AI_BASE_URL:https://dashscope.aliyuncs.com/compatible-mode}
+      api-key: ${AI_API_KEY:sk-placeholder}
+      chat:
+        options:
+          model: ${AI_MODEL:qwen-plus}
+      embedding:
+        options:
+          model: text-embedding-v3
+    vectorstore:
+      pgvector:
+        dimensions: 1024
+        distance-type: COSINE_DISTANCE
+        index-type: HNSW
+        initialize-schema: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:127.0.0.1}
+      port: ${REDIS_PORT:6379}
+
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: true
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+  global-config:
+    db-config:
+      id-type: auto
+      logic-delete-field: isDeleted
+      logic-delete-value: true
+      logic-not-delete-value: false
+
+app:
+  ai:
+    default-provider: dashscope
+  storage:
+    endpoint: ${MINIO_ENDPOINT:http://127.0.0.1:9000}
+    access-key: ${MINIO_ACCESS_KEY:minioadmin}
+    secret-key: ${MINIO_SECRET_KEY:minioadmin123}
+    bucket: ${MINIO_BUCKET:interview}
+    region: us-east-1
+  security:
+    aes-key: ${AES_KEY:interview-aes-key-2024}

@@ -16,6 +16,7 @@ applyTo: '**/*.java' # 'Describe when these instructions should be loaded by the
 
 **代码风格与结构**
 - 编写清晰、高效且文档完善的 Java 代码。
+- 严格遵循阿里巴巴 Java 开发手册
 - 命名规范：
    - 类名：帕斯卡命名法（PascalCase），如 `UserController`、`OrderService`。
    - 方法/变量：驼峰命名法（camelCase），如 `findUserById`、`isOrderValid`。
@@ -33,10 +34,37 @@ applyTo: '**/*.java' # 'Describe when these instructions should be loaded by the
 ### ️ 数据库模块规范（MySQL / OpenGauss）
 - **SQL 安全**：严禁使用字符串拼接生成 SQL，必须使用参数化查询（如 MyBatis 的 `#{}` 或 JPA 的占位符）以防止 SQL 注入。
 - **ORM 框架**：
-   - 使用 Spring Data JPA 或 MyBatis/MyBatis-Plus 进行数据库操作。
+   - 使用 MyBatis/MyBatis-Plus 进行数据库操作。
    - 适配 MySQL 和 OpenGauss 的方言差异，确保分页和特定函数的兼容性。
-- **数据库迁移**：使用 Flyway 或 Liquibase 进行数据库版本管理，禁止手动在生产环境执行 DDL。
-- **实体规范**：实现适当的实体关系和级联操作，敏感字段（如密码、身份证）在落库前必须加密或脱敏。
+
+---
+
+### Spring 事务规则
+
+- `@Transactional` 放 Service 层
+- **禁止**在事务方法内调用外部 API
+- **禁止**同类内部调用 `@Transactional` 方法（AOP 代理不生效）
+- 保持事务范围最小
+
+---
+
+### 日志规范
+
+- 使用 SLF4J（`@Slf4j`）+ Logback
+- 结构化日志：`log.info("Session created: sessionId={}, role={}", id, role)`
+- 异常作为最后一个参数：`log.error("Evaluation failed: sessionId={}", id, e)`
+- **禁止** `log.error("Error: {}", e.getMessage())`（丢失堆栈）
+- 严禁在日志中打印用户密码等敏感信息。
+
+---
+
+### 测试
+
+- JUnit 5 + Mockito + AssertJ
+- `@DisplayName` 中文描述测试意图
+- `@Nested` 按功能分组测试
+- 集成测试用 H2 内存数据库（`application-test.yml`）
+- 限流测试需要真实 Redis
 
 ###  Redis 缓存模块规范
 - **Key 管理（强制）**：**所有的 Redis Key 都不能直接硬编码在代码中**。必须定义在统一的常量类或枚举中（例如 `RedisKeyConstants.USER_INFO_KEY`），以便于统一管理和修改。
@@ -50,42 +78,4 @@ applyTo: '**/*.java' # 'Describe when these instructions should be loaded by the
 - **幂等性处理**：消费者端必须实现幂等性逻辑，防止因网络抖动等原因导致的消息重复消费。
 - **异常处理**：消费失败时，应有合理的重试机制或进入死信队列（DLQ），避免消息丢失。
 
-### ️ 安全、测试与性能
-- **安全性**：使用 Spring Security 进行身份验证和授权，密码使用 BCrypt 等强哈希算法。
-- **测试**：使用 JUnit 5 和 Spring Boot Test 编写单元测试，Web 层使用 `MockMvc`，仓库层使用 `@DataJpaTest`。
-- **日志与监控**：使用 SLF4J + Logback，严格区分 ERROR、WARN、INFO、DEBUG 级别。严禁在日志中打印用户密码等敏感信息。
-
 遵循 SOLID 原则，在 Spring Boot 应用程序设计中保持高内聚和低耦合。
-
-# Java 项目开发规范 (AI 协作版)
-
-## 🛠️ 技术栈与基础约束
-- 语言版本：Java 17+
-- 核心框架：Spring Boot 3.x
-- 持久层：MyBatis-Plus (禁止使用存储过程，逻辑在 Java 层处理)
-- 构建工具：Maven
-- 代码风格：严格遵循阿里巴巴 Java 开发手册<websource>source_group_web_6</websource>
-
-## 🏗️ 分层架构规范
-1. **Controller 层**：
-    - 只做参数接收、@Valid 校验、调用 Service、返回统一 Result<T> 包装类<websource>source_group_web_7</websource>。
-    - 严禁在 Controller 中编写任何业务逻辑或直接操作数据库。
-2. **Service 层**：
-    - 核心业务逻辑层，必须使用接口 + 实现类模式<websource>source_group_web_8</websource>。
-    - 事务注解 @Transactional 只能加在 Service 层方法上<websource>source_group_web_9</websource>。
-3. **Mapper/DAO 层**：
-    - 负责数据访问，复杂 SQL 必须手写在 XML 中，禁止使用 SELECT *<websource>source_group_web_10</websource>。
-
-## 📝 代码与命名规范
-- **命名**：类名使用大驼峰 (UpperCamelCase)，方法和变量使用小驼峰 (lowerCamelCase)，常量全大写下划线 (UPPER_SNAKE_CASE)<websource>source_group_web_11</websource>。
-- **注释**：所有 public 类和接口必须包含标准 JavaDoc 注释（包含 @author, @param, @return）<websource>source_group_web_12</websource>。
-- **Lombok**：实体类强制使用 @Data，日志使用 @Slf4j<websource>source_group_web_13</websource>。
-
-## 🛡️ 安全与防御红线
-- **SQL 安全**：所有 SQL 必须使用参数化查询（#{}），严禁使用字符串拼接（${}）防止注入<websource>source_group_web_14</websource>。
-- **异常处理**：禁止在业务代码中 try-catch 后只打印日志，必须统一由 GlobalExceptionHandler 处理<websource>source_group_web_15</websource>。
-- **日志规范**：严禁在日志中打印用户密码、手机号等敏感信息<websource>source_group_web_16</websource>。
-
-## 🚀 工作流程要求
-- 在生成复杂业务代码前，先输出实现计划（Plan）。
-- 修改核心逻辑（如支付、权限）前，必须先说明影响范围和回滚思路<websource>source_group_web_17</websource>。

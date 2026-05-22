@@ -7,7 +7,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 /**
  * 应用启动入口
  */
-@SpringBootApplication(scanBasePackages = "com.mhd.interview.web")
+@SpringBootApplication(scanBasePackages = {"com.mhd.interview.web","com.mhd.interview.ai"})
 @Slf4j
 public class InterviewApplication {
 

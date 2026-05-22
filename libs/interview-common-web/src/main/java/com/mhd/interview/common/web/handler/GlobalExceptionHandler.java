@@ -213,4 +213,19 @@ public class GlobalExceptionHandler {
                 requestContext, ex);
         return BaseResultUtils.error(ErrorCodeEnum.ERROR_500);
     }
+
+    ///**
+    // * 限流异常处理：返回 8001 错误码
+    // *
+    // * @param req HTTP请求对象
+    // * @param ex  限流异常
+    // * @return 统一响应结果
+    // */
+    //@ExceptionHandler(com.mhd.interview.web.common.exception.RateLimitExceededException.class)
+    //public BaseResponse<Void> handleRateLimitException(HttpServletRequest req,
+    //        com.mhd.interview.web.common.exception.RateLimitExceededException ex) {
+    //    String requestContext = buildRequestContext(req);
+    //    log.warn("[RateLimit] {} key={}", requestContext, ex.getKey());
+    //    return BaseResultUtils.error(ErrorCodeEnum.RATE_LIMIT_EXCEEDED);
+    //}
 }
