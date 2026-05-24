@@ -1,8 +1,3 @@
--- ============================================================
--- mhd-interview 数据库初始化脚本
--- 说明：Docker 容器首次启动时自动执行
--- ============================================================
-
 -- 启用 pgvector 扩展（需要 PostgreSQL 16+ 或已安装 pgvector 插件）
 CREATE EXTENSION IF NOT EXISTS vector;
 
@@ -51,60 +46,85 @@ COMMENT ON COLUMN t_llm_global_setting.update_time IS '最后更新时间';
 CREATE UNIQUE INDEX IF NOT EXISTS uk_llm_setting_key ON t_llm_global_setting(setting_key);
 
 -- ========== 简历模块 ==========
-
--- 简历主表
-CREATE TABLE IF NOT EXISTS t_resume (
-    id            BIGSERIAL    PRIMARY KEY,
-    user_id       BIGINT       NOT NULL DEFAULT 0,
-    file_name     VARCHAR(255) NOT NULL,
-    file_key      VARCHAR(500) NOT NULL,
-    file_size     BIGINT       NOT NULL DEFAULT 0,
-    file_hash     VARCHAR(64)  NOT NULL,
-    raw_content   TEXT,
-    status        SMALLINT     NOT NULL DEFAULT 0,
-    analyze_error VARCHAR(500),
-    is_deleted    BOOLEAN      NOT NULL DEFAULT FALSE,
-    create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-    update_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+-- 创建简历表
+CREATE TABLE t_resume (
+                          id BIGINT PRIMARY KEY,
+                          original_name VARCHAR(255) NOT NULL,
+                          file_hash VARCHAR(64) NOT NULL,
+                          file_size BIGINT,
+                          content_type VARCHAR(100),
+                          storage_key VARCHAR(255) NOT NULL,
+                          storage_url VARCHAR(500),
+                          parsed_text TEXT,
+                          analysis_status INTEGER DEFAULT 0,
+                          analysis_error VARCHAR(500),
+                          is_deleted BOOLEAN DEFAULT FALSE,
+                          create_time TIMESTAMP,
+                          update_time TIMESTAMP
 );
-COMMENT ON TABLE  t_resume IS '简历主表';
-COMMENT ON COLUMN t_resume.id            IS '主键ID';
-COMMENT ON COLUMN t_resume.user_id       IS '用户ID（当前版本默认0，后续接入用户体系时使用）';
-COMMENT ON COLUMN t_resume.file_name     IS '原始文件名';
-COMMENT ON COLUMN t_resume.file_key      IS 'MinIO 对象存储 Key';
-COMMENT ON COLUMN t_resume.file_size     IS '文件大小（字节）';
-COMMENT ON COLUMN t_resume.file_hash     IS '文件内容 SHA-256 哈希值（用于去重）';
-COMMENT ON COLUMN t_resume.raw_content   IS '简历解析原文（Tika 提取的纯文本）';
-COMMENT ON COLUMN t_resume.status        IS '解析/分析状态：0=待解析，1=解析中，2=已完成，3=失败';
-COMMENT ON COLUMN t_resume.analyze_error IS 'AI 分析失败时的错误信息（最多500字符）';
-COMMENT ON COLUMN t_resume.is_deleted    IS '逻辑删除标志（true=已删除）';
-COMMENT ON COLUMN t_resume.create_time   IS '创建时间';
-COMMENT ON COLUMN t_resume.update_time   IS '最后更新时间';
-CREATE UNIQUE INDEX IF NOT EXISTS uk_resume_hash ON t_resume(file_hash) WHERE is_deleted = FALSE;
 
--- 简历 AI 分析结果表
-CREATE TABLE IF NOT EXISTS t_resume_analysis (
-    id            BIGSERIAL PRIMARY KEY,
-    resume_id     BIGINT    NOT NULL,
-    overall_score SMALLINT,
-    strengths     TEXT,
-    weaknesses    TEXT,
-    suggestions   TEXT,
-    pdf_key       VARCHAR(500),
-    create_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
-    update_time   TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+-- 表注释
+COMMENT ON TABLE t_resume IS '简历表';
+-- 字段注释
+COMMENT ON COLUMN t_resume.id IS '主键 ID';
+COMMENT ON COLUMN t_resume.original_name IS '原始文件名';
+COMMENT ON COLUMN t_resume.file_hash IS '文件 SHA-256 哈希（用于去重）';
+COMMENT ON COLUMN t_resume.file_size IS '文件大小（字节）';
+COMMENT ON COLUMN t_resume.content_type IS '文件类型';
+COMMENT ON COLUMN t_resume.storage_key IS '存储文件的 Key';
+COMMENT ON COLUMN t_resume.storage_url IS '存储文件的 URL';
+COMMENT ON COLUMN t_resume.parsed_text IS '解析后的简历纯文本内容';
+COMMENT ON COLUMN t_resume.analysis_status IS '解析/分析状态：0=待解析，1=解析中，2=已完成，3=失败';
+COMMENT ON COLUMN t_resume.analysis_error IS 'AI 分析失败时的错误信息（最多500字符）';
+COMMENT ON COLUMN t_resume.is_deleted IS '逻辑删除标识（0=正常, 1=已删除）';
+COMMENT ON COLUMN t_resume.create_time IS '创建时间（INSERT 自动填充）';
+COMMENT ON COLUMN t_resume.update_time IS '更新时间（INSERT/UPDATE 自动填充）';
+
+-- 索引设计
+-- 1. 文件哈希唯一索引（用于文件去重，同时自动包含 is_deleted 过滤）
+CREATE UNIQUE INDEX idx_resume_file_hash ON t_resume (file_hash) WHERE is_deleted = FALSE;
+
+-- 2. 复合索引（用于查询指定用户的未完成/失败简历，等值条件在前）
+CREATE INDEX idx_resume_status_not_deleted ON t_resume (analysis_status, is_deleted);
+
+-- 3. 时间降序索引（用于按创建时间倒序分页查询最新简历）
+CREATE INDEX idx_resume_create_time ON t_resume (create_time DESC);
+
+-- 创建简历分析表
+CREATE TABLE t_resume_analysis (
+                                   id BIGINT PRIMARY KEY,
+                                   resume_id BIGINT NOT NULL,
+                                   score INTEGER,
+                                   content_score INTEGER,
+                                   structure_score INTEGER,
+                                   skill_match_score INTEGER,
+                                   expression_score INTEGER,
+                                   project_score INTEGER,
+                                   summary TEXT,
+                                   strengths TEXT,
+                                   suggestions TEXT,
+                                   create_time TIMESTAMP
 );
-COMMENT ON TABLE  t_resume_analysis IS '简历 AI 分析结果表（一对一关联 t_resume）';
-COMMENT ON COLUMN t_resume_analysis.id            IS '主键ID';
-COMMENT ON COLUMN t_resume_analysis.resume_id     IS '关联简历ID（唯一）';
-COMMENT ON COLUMN t_resume_analysis.overall_score IS 'AI 综合评分（0~100）';
-COMMENT ON COLUMN t_resume_analysis.strengths     IS '优势列表（JSON 数组字符串）';
-COMMENT ON COLUMN t_resume_analysis.weaknesses    IS '不足列表（JSON 数组字符串）';
-COMMENT ON COLUMN t_resume_analysis.suggestions   IS '改进建议（JSON 字符串）';
-COMMENT ON COLUMN t_resume_analysis.pdf_key       IS '分析报告 PDF 的 MinIO Key';
-COMMENT ON COLUMN t_resume_analysis.create_time   IS '创建时间';
-COMMENT ON COLUMN t_resume_analysis.update_time   IS '最后更新时间';
-CREATE UNIQUE INDEX IF NOT EXISTS uk_resume_analysis_resume ON t_resume_analysis(resume_id);
+
+-- 表注释
+COMMENT ON TABLE t_resume_analysis IS '简历分析结果表';
+-- 字段注释
+COMMENT ON COLUMN t_resume_analysis.id IS '主键 ID';
+COMMENT ON COLUMN t_resume_analysis.resume_id IS '关联的简历 ID';
+COMMENT ON COLUMN t_resume_analysis.score IS '综合评分（0-100）';
+COMMENT ON COLUMN t_resume_analysis.content_score IS '内容完整性 (0-25)';
+COMMENT ON COLUMN t_resume_analysis.structure_score IS '结构清晰度 (0-20)';
+COMMENT ON COLUMN t_resume_analysis.skill_match_score IS '技能匹配度 (0-25)';
+COMMENT ON COLUMN t_resume_analysis.expression_score IS '表达专业性 (0-15)';
+COMMENT ON COLUMN t_resume_analysis.project_score IS '项目经验 (0-15)';
+COMMENT ON COLUMN t_resume_analysis.summary IS 'AI 分析摘要';
+COMMENT ON COLUMN t_resume_analysis.strengths IS '核心优势（JSON格式）';
+COMMENT ON COLUMN t_resume_analysis.suggestions IS '优化建议（JSON格式）';
+COMMENT ON COLUMN t_resume_analysis.create_time IS '创建时间（INSERT 自动填充）';
+
+-- 索引设计
+-- 1. 关联简历 ID 索引（最核心的查询场景：根据简历ID查分析结果）
+CREATE INDEX idx_analysis_resume_id ON t_resume_analysis (resume_id);
 
 -- ========== 模拟面试模块 ==========
 

@@ -16,6 +16,6 @@ public enum ResumeAnalysisStatusEnum implements PowerfulEnum{
     COMPLETED(2, "已完成"),
     FAILED(3, "失败")
     ;
-    private final int code;
+    private final Integer code;
     private final String description;
 }

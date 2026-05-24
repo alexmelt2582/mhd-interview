@@ -1,12 +1,12 @@
 package com.mhd.interview.web.modules.resume.stream;
 
 import com.mhd.interview.common.enums.ResumeAnalysisStatusEnum;
+import com.mhd.interview.common.web.utils.SpringUtils;
 import com.mhd.interview.web.common.async.AbstractStreamProducer;
 import com.mhd.interview.web.common.constant.StreamConstants;
 import com.mhd.interview.web.infrastructure.redis.RedisStreamService;
 import com.mhd.interview.web.modules.resume.entity.ResumeEntity;
 import com.mhd.interview.web.modules.resume.service.IResumeService;
-import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -24,9 +24,6 @@ import java.util.Objects;
 @Component
 @Slf4j
 public class ResumeAnalysisProducer extends AbstractStreamProducer<ResumeAnalysisPayload> {
-
-    @Resource
-    private IResumeService iResumeService;
 
     /**
      * 构造函数，注入 RedisStreamService
@@ -88,9 +85,10 @@ public class ResumeAnalysisProducer extends AbstractStreamProducer<ResumeAnalysi
      * 更新分析状态
      */
     private void updateAnalyzeStatus(Long resumeId, ResumeAnalysisStatusEnum status, String error) {
-        ResumeEntity dbResume = iResumeService.selectResumeById(resumeId);
+        IResumeService resumeService = SpringUtils.getBean(IResumeService.class);
+        ResumeEntity dbResume = resumeService.selectResumeById(resumeId);
         if (!Objects.isNull(dbResume)) {
-            iResumeService.updateResumeAnalysisInfo(resumeId, status, error);
+            resumeService.updateResumeAnalysisInfo(resumeId, status, error);
             log.debug("分析状态已更新: resumeId={}, status={}", resumeId, status);
         }
     }

@@ -96,10 +96,10 @@ services:
       /bin/sh -c "
       # 1. 配置 MinIO 客户端别名 (myminio) 连接到 minio 服务
       /usr/bin/mc alias set myminio http://minio:9000 minioadmin minioadmin;
-      # 2. 创建名为 interview-guide 的存储桶
-      /usr/bin/mc mb myminio/mhd-interview-guide;
+      # 2. 创建名为 mhd-interview 的存储桶
+      /usr/bin/mc mb myminio/mhd-interview;
       # 3. 设置该存储桶为公共读权限（方便前端直接访问图片等资源）
-      /usr/bin/mc anonymous set public myminio/mhd-interview-guide;
+      /usr/bin/mc anonymous set public myminio/mhd-interview;
       exit 0;
       "
 
@@ -130,7 +130,7 @@ services:
   #      # 使用服务名 'postgres' 作为主机名，Docker 内部 DNS 会自动解析
   #      POSTGRES_HOST: postgres
   #      POSTGRES_PORT: 5432
-  #      POSTGRES_DB: interview_guide
+  #      POSTGRES_DB: mhd_interview
   #      POSTGRES_USER: postgres
   #      POSTGRES_PASSWORD: password
   #
@@ -143,7 +143,7 @@ services:
   #      APP_STORAGE_ENDPOINT: http://minio:9000
   #      APP_STORAGE_ACCESS_KEY: minioadmin
   #      APP_STORAGE_SECRET_KEY: minioadmin
-  #      APP_STORAGE_BUCKET: interview-guide
+  #      APP_STORAGE_BUCKET: mhd-interview
   #      APP_STORAGE_REGION: us-east-1
   #
   #      # === AI 模型配置 (必须配置) ===

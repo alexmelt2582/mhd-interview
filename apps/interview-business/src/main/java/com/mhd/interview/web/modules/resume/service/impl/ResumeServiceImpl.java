@@ -250,9 +250,9 @@ public class ResumeServiceImpl implements IResumeService {
     public void reanalyze(Long resumeId) {
         ResumeEntity resume = baseMapper.selectById(resumeId);
         if (resume == null) {
-            throw new BusinessException(ErrorCodeEnum.RESUME_NOT_FOUND, "简历不存在: " + id);
+            throw new BusinessException(ErrorCodeEnum.RESUME_NOT_FOUND, "简历不存在: " + resumeId);
         }
-        log.info("开始重新分析简历: resumeId={}, filename={}", resumeId, resume.getOriginalFilename());
+        log.info("开始重新分析简历: resumeId={}, filename={}", resumeId, resume.getOriginalName());
         String parsedText = resume.getParsedText();
         if (StringUtils.isBlank(parsedText)) {
             throw new BusinessException(ErrorCodeEnum.RESUME_PARSE_FAILED, "简历文本内容为空，无法分析");

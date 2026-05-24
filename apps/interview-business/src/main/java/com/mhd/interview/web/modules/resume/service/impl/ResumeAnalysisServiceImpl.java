@@ -1,4 +1,4 @@
-﻿package com.mhd.interview.web.modules.resume.service.impl;
+package com.mhd.interview.web.modules.resume.service.impl;
 
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.mhd.interview.ai.llm.LlmProviderRegistry;
