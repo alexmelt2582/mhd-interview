@@ -28,8 +28,8 @@ import java.util.UUID;
 /**
  * 限流 AOP 切面
  * <p>
- * 支持可重复注�?{@link RateLimit}，逐条执行独立的限流规则，任一规则超限即拒绝请求�?
- * 使用 Redisson + Redis Lua 脚本实现滑动窗口算法�?
+ * 支持可重复注解{@link RateLimit}，逐条执行独立的限流规则，任一规则超限即拒绝请求?
+ * 使用 Redisson + Redis Lua 脚本实现滑动窗口算法
  *
  * @author mhd
  */
@@ -44,7 +44,7 @@ public class RateLimitAspect {
     /** Lua 脚本内容（静态加载，应用启动时读取） */
     private static final String LUA_SCRIPT;
 
-    /** Lua 脚本 SHA1（用�?evalSha 避免重复传输脚本内容�?*/
+    /** Lua 脚本 SHA1（用 luaScriptSha 避免重复传输脚本内容 */
     private String luaScriptSha;
 
     /** Redisson 脚本操作对象 */
@@ -60,7 +60,7 @@ public class RateLimitAspect {
     }
 
     /**
-     * 应用启动后初始化：创�?RScript 实例并预加载 Lua 脚本
+     * 应用启动后初始化：创建RScript 实例并预加载 Lua 脚本
      */
     @PostConstruct
     public void init() {
@@ -69,7 +69,7 @@ public class RateLimitAspect {
     }
 
     /**
-     * 加载 Lua 脚本�?Redis，返�?SHA1
+     * 加载 Lua 脚本�?Redis，返回SHA1
      */
     private void loadScript() {
         this.luaScriptSha = rScript.scriptLoad(LUA_SCRIPT);
@@ -77,11 +77,11 @@ public class RateLimitAspect {
     }
 
     /**
-     * 环绕通知：拦截带 {@link RateLimit} �?{@link RateLimit.Container} 注解的方�?
+     * 环绕通知：拦截带 {@link RateLimit} �?{@link RateLimit.Container} 注解的方法
      *
-     * @param joinPoint 切入�?
+     * @param joinPoint 切入点
      * @return 方法执行结果
-     * @throws Throwable 方法执行或限流拒绝异�?
+     * @throws Throwable 方法执行或限流拒绝异常
      */
     @Around("@annotation(com.mhd.interview.web.common.annotation.RateLimit) || " +
             "@annotation(com.mhd.interview.web.common.annotation.RateLimit.Container)")
@@ -91,36 +91,37 @@ public class RateLimitAspect {
         String className = method.getDeclaringClass().getSimpleName();
         String methodName = method.getName();
 
-        // 获取方法上所�?@RateLimit 注解（支持可重复注解�?
+        // 获取方法上所�?@RateLimit 注解（支持可重复注解）
         RateLimit[] rules = method.getAnnotationsByType(RateLimit.class);
         long nowMs = System.currentTimeMillis();
         String requestId = UUID.randomUUID().toString();
 
-        // 逐条规则执行限流检查，任一超限即拒�?
+        // 逐条规则执行限流检查，任一超限即拒绝
         for (RateLimit rule : rules) {
             long intervalMs = rule.timeUnit().toMillis(rule.interval());
             String key = generateKey(className, methodName, rule.dimension());
 
             Long result = executeRateLimitScript(key, nowMs, requestId, intervalMs, rule.count());
 
-            if (result == null || result == 0) {
-                log.warn("限流触发，拒绝请�? key={}, count={} per {}ms", key, rule.count(), intervalMs);
-                throw new RateLimitExceededException("请求过于频繁，请稍后再试");
-            }
+            // TODO 限流
+            //if (result == null || result == 0) {
+            //    log.warn("限流触发，拒绝请求 key={}, count={} per {}ms", key, rule.count(), intervalMs);
+            //    throw new RateLimitExceededException("请求过于频繁，请稍后再试");
+            //}
         }
 
         return joinPoint.proceed();
     }
 
     /**
-     * 执行限流 Lua 脚本，支�?NOSCRIPT 错误时自动重新加载并重试
+     * 执行限流 Lua 脚本，支持NOSCRIPT 错误时自动重新加载并重试
      *
      * @param key        Redis Key
-     * @param nowMs      当前时间戳（毫秒�?
+     * @param nowMs      当前时间戳（毫秒）
      * @param requestId  请求唯一标识
      * @param intervalMs 时间窗口（毫秒）
-     * @param count      允许的最大请求次�?
-     * @return 脚本返回值（�?表示通过�?或null表示超限�?
+     * @param count      允许的最大请求次数
+     * @return 脚本返回值
      */
     private Long executeRateLimitScript(String key, long nowMs, String requestId, long intervalMs, long count) {
         List<Object> keysList = Collections.singletonList(key);
@@ -142,7 +143,7 @@ public class RateLimitAspect {
             );
             return convertToLong(resultObj);
         } catch (org.redisson.client.RedisException e) {
-            // Redis 重启后脚本缓存丢失，重新加载并重�?
+            // Redis 重启后脚本缓存丢失，重新加载
             if (e.getMessage() != null && e.getMessage().contains("NOSCRIPT")) {
                 loadScript();
                 Object resultObj = rScript.evalSha(
@@ -180,8 +181,8 @@ public class RateLimitAspect {
     /**
      * 将脚本返回值转换为 Long
      *
-     * @param obj 返回值对�?
-     * @return Long 值，无法转换时返�?null
+     * @param obj 返回值对象
+     * @return Long 值，无法转换时返回null
      */
     private Long convertToLong(Object obj) {
         if (obj instanceof Number n) {
@@ -198,9 +199,9 @@ public class RateLimitAspect {
     }
 
     /**
-     * 获取客户端真�?IP（依次从 X-Forwarded-For、X-Real-IP、RemoteAddr 获取�?
+     * 获取客户端真实（依次从 X-Forwarded-For、X-Real-IP、RemoteAddr 获取IP
      *
-     * @return 客户�?IP 字符�?
+     * @return 客户端IP 字符串
      */
     private String getClientIp() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
@@ -222,9 +223,9 @@ public class RateLimitAspect {
     }
 
     /**
-     * 获取当前用户 ID（从请求属性或请求头中读取，未登录时降级为 "anonymous"�?
+     * 获取当前用户 ID（从请求属性或请求头中读取，未登录时降级为 "anonymous"
      *
-     * @return 用户 ID 字符�?
+     * @return 用户 ID 字符串
      */
     private String getCurrentUserId() {
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();

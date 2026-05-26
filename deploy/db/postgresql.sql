@@ -12,6 +12,7 @@ CREATE TABLE t_resume (
                           parsed_text TEXT,
                           analysis_status INTEGER DEFAULT 0,
                           analysis_error VARCHAR(500),
+                          access_count INTEGER,
                           is_deleted BOOLEAN DEFAULT FALSE,
                           create_time TIMESTAMP,
                           update_time TIMESTAMP
@@ -30,6 +31,7 @@ COMMENT ON COLUMN t_resume.storage_url IS '存储文件的 URL';
 COMMENT ON COLUMN t_resume.parsed_text IS '解析后的简历纯文本内容';
 COMMENT ON COLUMN t_resume.analysis_status IS '解析/分析状态：0=待解析，1=解析中，2=已完成，3=失败';
 COMMENT ON COLUMN t_resume.analysis_error IS 'AI 分析失败时的错误信息（最多500字符）';
+COMMENT ON COLUMN t_resume.access_count IS '访问次数';
 COMMENT ON COLUMN t_resume.is_deleted IS '逻辑删除标识（0=正常, 1=已删除）';
 COMMENT ON COLUMN t_resume.create_time IS '创建时间（INSERT 自动填充）';
 COMMENT ON COLUMN t_resume.update_time IS '更新时间（INSERT/UPDATE 自动填充）';

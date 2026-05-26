@@ -99,7 +99,7 @@ export const historyApi = {
    * 获取简历详情
    */
   async getResumeDetail(id: number): Promise<ResumeDetail> {
-    return request.get<ResumeDetail>(`/api/resumes/${id}/detail`);
+    return request.get<ResumeDetail>(`/api/resume/${id}/detail`);
   },
 
   /**
@@ -113,7 +113,7 @@ export const historyApi = {
    * 导出简历分析报告PDF
    */
   async exportAnalysisPdf(resumeId: number): Promise<Blob> {
-    const response = await request.getInstance().get(`/api/resumes/${resumeId}/export`, {
+    const response = await request.getInstance().get(`/api/resume/${resumeId}/export`, {
       responseType: 'blob',
       skipResultTransform: true,
     } as never);
@@ -135,7 +135,7 @@ export const historyApi = {
    * 删除简历
    */
   async deleteResume(id: number): Promise<void> {
-    return request.delete(`/api/resumes/${id}`);
+    return request.delete(`/api/resume/${id}`);
   },
 
   /**
@@ -149,13 +149,13 @@ export const historyApi = {
    * 获取简历统计信息
    */
   async getStatistics(): Promise<ResumeStats> {
-    return request.get<ResumeStats>('/api/resumes/statistics');
+    return request.get<ResumeStats>('/api/resume/statistics');
   },
 
   /**
    * 重新分析简历
    */
   async reanalyze(id: number): Promise<void> {
-    return request.post(`/api/resumes/${id}/reanalyze`);
+    return request.post(`/api/resume/${id}/reanalyze`);
   },
 };
